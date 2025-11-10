@@ -1,0 +1,225 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>King’s Hem | Style & Discovery</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f9f9f9;
+      color: #222;
+    }
+    header {
+      background: #000;
+      color: white;
+      text-align: center;
+      padding: 2rem 1rem;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 2.5rem;
+      letter-spacing: 1px;
+    }
+    header p {
+      font-style: italic;
+      font-size: 1.1rem;
+    }
+    main {
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+    section {
+      margin-bottom: 3rem;
+    }
+    h2 {
+      border-bottom: 2px solid #000;
+      padding-bottom: .5rem;
+    }
+    .product {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .product img {
+      width: 100%;
+      border-radius: 10px;
+    }
+    .admin {
+      display: none;
+      text-align: right;
+      margin-bottom: 1rem;
+    }
+    button {
+      padding: 0.5rem 1rem;
+      border: none;
+      background: #000;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 0.25rem;
+    }
+    button:hover { opacity: 0.8; }
+    footer {
+      text-align: center;
+      padding: 2rem 1rem;
+      background: #111;
+      color: white;
+    }
+    input, textarea {
+      width: 100%;
+      padding: .5rem;
+      margin: .25rem 0;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>King’s Hem</h1>
+    <p>Style & Discovery</p>
+  </header>
+  <main>
+    <section id="about">
+      <h2>Our Story</h2>
+      <p>King’s Hem promotes Art, Storytelling, Comfortability, and Functionality. We believe your body is a canvas and your style is the artwork. Fashion, across time and cultures, has always told stories of identity, status, and tradition — while fulfilling the essential need for comfort.</p>
+    </section>
+
+    <section id="products">
+      <h2>Our Collection</h2>
+      <div id="productList"></div>
+      <div class="admin" id="adminPanel">
+        <button onclick="addProduct()">Add Product</button>
+        <button onclick="exportData()">Export Data</button>
+        <input type="file" id="importFile" style="display:none" onchange="importData(event)">
+        <button onclick="document.getElementById('importFile').click()">Import Data</button>
+      </div>
+    </section>
+
+    <section id="contact">
+      <h2>Contact</h2>
+      <p><strong>WhatsApp:</strong> <a href="https://wa.me/250782215422" target="_blank">+250 782 215 422</a></p>
+      <p><strong>Email:</strong> <a href="mailto:kingshem25@gmail.com">kingshem25@gmail.com</a></p>
+      <p><strong>Instagram:</strong> <a href="https://www.instagram.com/kings.hem/" target="_blank">@kings.hem</a></p>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2025 King’s Hem. All rights reserved.</p>
+    <button onclick="login()">Admin Login</button>
+  </footer>
+
+  <script>
+    const PASSWORD = "Kigali@2025";
+    const productList = document.getElementById('productList');
+    const adminPanel = document.getElementById('adminPanel');
+
+    let products = JSON.parse(localStorage.getItem('kingshem_products') || '[]');
+    if (products.length === 0) {
+      products = [
+        {name: "Gasabo Classic Shirt", desc: "Fine canvas blend with subtle embroidery.", price: "70,000 RWF", img: ""}
+      ];
+    }
+
+    function renderProducts() {
+      productList.innerHTML = "";
+      products.forEach((p, i) => {
+        const div = document.createElement('div');
+        div.className = 'product';
+        div.innerHTML = `
+          <img src="${p.img || 'https://via.placeholder.com/600x400?text=Product+Image'}" alt="${p.name}">
+          <h3>${p.name}</h3>
+          <p>${p.desc}</p>
+          <p><strong>Price:</strong> ${p.price}</p>
+          <a href="https://wa.me/250782215422?text=I'm interested in the ${p.name}" target="_blank">
+            <button>Order via WhatsApp</button>
+          </a>
+          <div class="admin">
+            <button onclick="editProduct(${i})">Edit</button>
+            <button onclick="deleteProduct(${i})">Delete</button>
+          </div>
+        `;
+        productList.appendChild(div);
+      });
+    }
+
+    function saveProducts() {
+      localStorage.setItem('kingshem_products', JSON.stringify(products));
+    }
+
+    function addProduct() {
+      const name = prompt("Product name:");
+      if (!name) return;
+      const desc = prompt("Short description:");
+      const price = prompt("Price:");
+      const img = prompt("Image URL (optional):");
+      products.push({name, desc, price, img});
+      saveProducts();
+      renderProducts();
+      alert("Product added!");
+    }
+
+    function editProduct(i) {
+      const p = products[i];
+      p.name = prompt("Edit name:", p.name) || p.name;
+      p.desc = prompt("Edit description:", p.desc) || p.desc;
+      p.price = prompt("Edit price:", p.price) || p.price;
+      p.img = prompt("Edit image URL:", p.img) || p.img;
+      saveProducts();
+      renderProducts();
+      alert("Product updated!");
+    }
+
+    function deleteProduct(i) {
+      if (confirm("Delete this product?")) {
+        products.splice(i, 1);
+        saveProducts();
+        renderProducts();
+      }
+    }
+
+    function login() {
+      const pass = prompt("Enter admin password:");
+      if (pass === PASSWORD) {
+        document.querySelectorAll('.admin').forEach(e => e.style.display = 'block');
+        alert("Admin mode activated");
+      } else {
+        alert("Incorrect password.");
+      }
+    }
+
+    function exportData() {
+      const blob = new Blob([JSON.stringify(products, null, 2)], {type: 'application/json'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'kingshem_data.json';
+      a.click();
+    }
+
+    function importData(e) {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        try {
+          products = JSON.parse(evt.target.result);
+          saveProducts();
+          renderProducts();
+          alert("Data imported successfully!");
+        } catch (err) {
+          alert("Import failed: invalid file.");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    renderProducts();
+  </script>
+</body>
+</html>
